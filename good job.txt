@@ -1,8 +1,8 @@
-Install split_folders app
+#Install split_folders app
 
 pip install split_folders
 
-Import modul, download data, split folder, buat ImageDataGenerator, bandingkan dengan ImageDataGenerator dengan train dan verifikasi image di validation
+#Import modul, download data, split folder, buat ImageDataGenerator, bandingkan dengan ImageDataGenerator dengan train dan verifikasi image di validation
 
 #import dan check versi tf
 import tensorflow as tf
@@ -20,8 +20,7 @@ import os
 https://dicodingacademy.blob.core.windows.net/picodiploma/ml_pemula_academy/rockpaperscissors.zip \
 -O /tmp/rockpaperscissors.zip
 
-import zipfile
-import os
+import zipfile, os
 local_zip = '/tmp/rockpaperscissors.zip'
 zip_ref = zipfile.ZipFile(local_zip, 'r')
 zip_ref.extractall('/tmp')
@@ -34,45 +33,55 @@ os.listdir ('/tmp/rockpaperscissors')
 #validation_dir = os.path.join(base_dir, 'val')
 #os.listdir('/tmp/rockpaperscissors/rps-cv-images')
 
-import split_folders
-base_dir = '/tmp/rockpaperscissors/rps-cv-images'
-split_folders.ratio('/tmp/rockpaperscissors/rps-cv-images', output="/tmp/rockpaperscissors/data", seed=1337, ratio=(.6, .4))
-#HasilSplitData = '/tmp/rockpaperscissors/data'
+train_dir = os.path.join('/tmp/rockpaperscissors/', 'train')
+validation_dir = os.path.join('tmp/rockpaperscissors/', 'val')
+
 rock_dir = os.path.join(base_dir, 'rock')
 paper_dir = os.path.join(base_dir, 'paper')
 scissors_dir = os.path.join(base_dir, 'scissors')
 
-train_rock_dir, validation_rock_dir = train_test_split(os.listdir (rock_dir))
-train_paper_dir, validation_paper_dir = train_test_split(os.listdir (paper_dir))
-train_scissors_dir, validation_scissors_dir = train_test_split(os.listdir (scissors_dir))
+train_rock_dir, val_rock_dir = train_test_split(os.listdir (rock_dir), text-size=0.4)
+train_paper_dir, val_paper_dir = train_test_split(os.listdir (paper_dir), text-size=0.4)
+train_scissors_dir, val_scissors_dir = train_test_split(os.listdir (scissors_dir), text-size=0.4)
+
+
+
 
 #validation_rock_dir = os.path.join(HasilSplitData, 'rock')
 #validation_paper_dir = os.path.join(HasilSplitData, 'paper')
 #validation_scissor_dir = os.path.join(HasilSplitData, 'scissors')
 
 
-datamodel = ImageDataGenerator(
+train_datagen = ImageDataGenerator(
                         rescale=1./255,
                         rotation_range=20,
                         horizontal_flip=True,
                         shear_range = 0.2,
-                        fill_mode = 'wrap')
+                        fill_mode = 'nearest')
+                        
 
-train_generator = datamodel.flow_from_directory(
+test_datagen = ImageDataGenerator(
+                        rescale=1./255,
+                        rotation_range=20,
+                        horizontal_flip=True,
+                        shear_range = 0.2,
+                        fill_mode = 'nearest')
+                        
+
+train_generator = train_datagen.flow_from_directory(
         base_dir,  
         target_size=(200, 200),
-        batch_size=4,
+        batch_size=32,
         class_mode='categorical')
 
-validation_generator = datamodel.flow_from_directory(
+validation_generator = test_datagen.flow_from_directory(
         base_dir,
         target_size=(200, 200),
-        batch_size=4,
+        batch_size=32,
         class_mode='categorical')
 
 
-configurasi model image
-
+#configurasi model image
 #membuat model
 model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(32, (3,3), activation = 'relu', input_shape=(200,200,3)),
@@ -109,9 +118,9 @@ history = model.fit(
   #    name=fn, length=len(uploaded[fn])))
   
  
- Klik run untuk masukan file image yang akan di analisa machine-learning
+ #Klik run untuk masukan file image yang akan di analisa machine-learning
  
- import numpy as np
+import numpy as np
 from google.colab import files
 from keras.preprocessing import image
 import matplotlib.pyplot as plt
@@ -119,9 +128,9 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 %matplotlib inline
+
 # predicting images     
-uploaded = files.upload()
-     
+uploaded = files.upload() 
 for fn in uploaded.keys():     
   path = fn
   img = image.load_img(path, target_size=(200,200))
